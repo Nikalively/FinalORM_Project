@@ -1,0 +1,30 @@
+version: '3.9'
+
+services:
+  postgres:
+    container_name: finalorm_postgres
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: education_platform
+      POSTGRES_USER: eduadmin
+      POSTGRES_PASSWORD: edupass2024
+    networks:
+      - finalorm-network
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U eduadmin -d education_platform"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  finalorm-network:
+    driver: bridge
