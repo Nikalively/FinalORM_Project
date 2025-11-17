@@ -1,6 +1,7 @@
 package com.education.finalorm.repository;
 
 import com.education.finalorm.entity.User;
+import com.education.finalorm.enums.UserRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,13 +13,14 @@ import java.util.UUID;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, UUID> {
+
     Optional<User> findByEmail(String email);
 
-    @Query("SELECT u FROM User u WHERE u.email = :email AND u.role = :role")
-    Optional<User> findByEmailAndRole(@Param("email") String email, @Param("role") UserRole role);
+    @Query("SELECT u FROM User u WHERE TYPE(u) = :type")
+    List<User> findByType(@Param("type") Class<? extends User> type);
 
-    List<User> findByRole(UserRole role);
-
-    @Query("SELECT u FROM User u WHERE LOWER(u.firstName) LIKE LOWER(CONCAT('%', :name, '%')) OR LOWER(u.lastName) LIKE LOWER(CONCAT('%', :name, '%'))")
-    List<User> searchByName(@Param("name") String name);
+    @Query("SELECT u FROM User u WHERE " +
+            "(:role = 'STUDENT' AND TYPE(u) = Student) OR " +
+            "(:role = 'TEACHER' AND TYPE(u) = Teacher)")
+    List<User> findByRole(@Param("role") UserRole role);
 }
